@@ -1,4 +1,5 @@
 import java.util.*;
+//this is an example of a strategy patten for CSC3250
 class Course{
     private String _cnum;
     private int _credits;
