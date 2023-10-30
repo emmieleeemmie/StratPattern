@@ -37,7 +37,6 @@ class CourseSearch implements SearchBehavior<Course, String>{
         return obj.getNumber().equals(v);
     }
 }
-
 class AllItems<T>{
     private ArrayList<T> _items;
     public AllItems(){
@@ -62,6 +61,10 @@ class AllItems<T>{
         }
         return -1;
     }
+    public void removeItem(int i){
+        if (i >= 0 && i < _items.size())
+            _items.remove(i);
+    }
     public int size(){
         return _items.size();
     }
@@ -78,40 +81,15 @@ class AllStudents{
         _students.addItem(new Student(id));
     }
     public boolean isStudent(String id){
-        int i=0;
-        boolean found = false;
-        while (i<_students.size() && !found){
-            if (_students.get(i).getID().equals(id))
-                found = true;
-            else
-                i++;
-        }
-        return found;
+        return _students.isItem(id, new StudentSearch());
     }
     public int findStudent(String id){
-        int i=0;
-        boolean found = false;
-        while (i<_students.size() && !found){
-            if (_students.get(i).getID().equals(id))
-                found = true;
-            else
-                i++;
-        }
-        if (!found)
-            return -1;
-        return i;
+        return _students.FindItem(id, new StudentSearch());
     }
     public void removeStudent(String id){
-        int i=0;
-        boolean found = false;
-        while (i<_students.size() && !found){
-            if (_students.get(i).getID().equals(id)) {
-                _students.remove(i);
-                found = true;
-            }
-            else
-                i++;
-        }
+        int i = _students.FindItem(id, new StudentSearch());
+        _students.removeItem(i);
+
     }
     public String toString(){
         String s = "Students:\n";
@@ -130,40 +108,14 @@ class AllCourses{
         _courses.addItem(new Course(cnum, c));
     }
     public boolean isCourse(String cnum){
-        int i=0;
-        boolean found = false;
-        while (i<_courses.size() && !found){
-            if (_courses.get(i).getNumber().equals(cnum))
-                found = true;
-            else
-                i++;
-        }
-        return found;
+        return _courses.isItem(cnum, new CourseSearch());
     }
     public int findCourse(String cnum){
-        int i=0;
-        boolean found = false;
-        while (i<_courses.size() && !found){
-            if (_courses.get(i).getNumber().equals(cnum))
-                found = true;
-            else
-                i++;
-        }
-        if (!found)
-            return -1;
-        return i;
+        return _courses.FindItem(cnum, new CourseSearch());
     }
     public void removeCourse(String cnum){
-        int i=0;
-        boolean found = false;
-        while (i<_courses.size() && !found){
-            if (_courses.get(i).getNumber().equals(cnum)) {
-                _courses.remove(i);
-                found = true;
-            }
-            else
-                i++;
-        }
+        int i = _courses.FindItem(cnum, new CourseSearch());
+        _courses.removeItem(i);
     }
     public String toString(){
         String s = "Courses:\n";
@@ -172,7 +124,6 @@ class AllCourses{
         return s;
     }
 }
-
 public class Main {
     public static void main(String[] args) {
         AllStudents as = new AllStudents();
