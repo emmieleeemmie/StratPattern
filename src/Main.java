@@ -42,10 +42,13 @@ class AllItems<T>{
     public AllItems(){
         _items = new ArrayList<T>();
     }
+    public AllItems(int size){
+        _items = new ArrayList<T>(size);
+    }
     public void addItem(T t){
         _items.add(t);
     }
-    public <S> boolean isItem(S v, SearchBehavior<T, S> sb){
+    public <S> boolean isItem(S v, SearchBehavior<T, S> sb){ //consolidate
         for(T item : _items){
             if(sb.search(item, v)){
                 return true;
@@ -77,6 +80,9 @@ class AllStudents{
     public AllStudents(){
         _students = new AllItems<Student>();
     }
+    public AllStudents(int size){
+        _students = new AllItems<Student>(size);
+    }
     public void addStudent(String id){
         _students.addItem(new Student(id));
     }
@@ -87,9 +93,9 @@ class AllStudents{
         return _students.FindItem(id, new StudentSearch());
     }
     public void removeStudent(String id){
-        int i = _students.FindItem(id, new StudentSearch());
+        //int i = _students.FindItem(id, new StudentSearch());
+        int i = findStudent(id);
         _students.removeItem(i);
-
     }
     public String toString(){
         String s = "Students:\n";
@@ -97,12 +103,26 @@ class AllStudents{
             s += (_students.getItem(i).toString() + "\n");
         return s;
     }
+    public int size(){
+        return _students.size();
+    }
+    public boolean modifyStudentID(String newID, String oldID){
+        int i = findStudent(oldID);
+        if (i < 0)
+            return false;
+        else
+            _students.getItem(i).setID(newID);
+            return true;
+    }
 }
 class AllCourses{
     private AllItems<Course> _courses;
 
     public AllCourses(){
         _courses = new AllItems<Course>();
+    }
+    public AllCourses(int size){
+        _courses = new AllItems<Course>(size);
     }
     public void addCourse(String cnum, int c){
         _courses.addItem(new Course(cnum, c));
@@ -122,6 +142,17 @@ class AllCourses{
         for (int i=0; i<_courses.size(); i++)
             s += (_courses.getItem(i).toString() + "\n");
         return s;
+    }
+    public int size(){
+        return _courses.size();
+    }
+    public boolean modifyCourseNumber(String ncnum, String cnum){
+        int i = findCourse(cnum);
+        if (i < 0)
+            return false;
+        else
+            _courses.getItem(i).setNumber(ncnum);
+            return true;
     }
 }
 public class Main {
