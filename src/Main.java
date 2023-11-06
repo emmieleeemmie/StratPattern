@@ -233,10 +233,8 @@ class Enrollment{
                 s += (t.getItem(j) + " ");
             s += "\n";
         }
-
         return s;
     }
-
 }
 public class Main {
     public static void main(String[] args) {
