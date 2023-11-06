@@ -37,6 +37,12 @@ class CourseSearch implements SearchBehavior<Course, String>{
         return obj.getNumber().equals(v);
     }
 }
+class CnumSearch implements SearchBehavior<String, String>{
+    @Override
+    public boolean search(String obj, String v) {
+        return obj.equals(v);
+    }
+}
 class AllItems<T>{
     private ArrayList<T> _items;
     public AllItems(){
@@ -48,14 +54,14 @@ class AllItems<T>{
     public void addItem(T t){
         _items.add(t);
     }
-    public <S> boolean isItem(S v, SearchBehavior<T, S> sb){ //consolidate
-        for(T item : _items){
-            if(sb.search(item, v)){
-                return true;
-            }
-        }
-        return false;
-    }
+//    public <S> boolean isItem(S v, SearchBehavior<T, S> sb){ //consolidate
+//        for(T item : _items){
+//            if(sb.search(item, v)){
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
     public <S> int FindItem(S v, SearchBehavior<T, S> sb){
         for(int i = 0; i < _items.size(); i++){
             if(sb.search(_items.get(i), v)){
@@ -87,7 +93,10 @@ class AllStudents{
         _students.addItem(new Student(id));
     }
     public boolean isStudent(String id){
-        return _students.isItem(id, new StudentSearch());
+        if(_students.FindItem(id, new StudentSearch()) == -1)
+            return false;
+        else
+            return true;
     }
     public int findStudent(String id){
         return _students.FindItem(id, new StudentSearch());
@@ -128,7 +137,10 @@ class AllCourses{
         _courses.addItem(new Course(cnum, c));
     }
     public boolean isCourse(String cnum){
-        return _courses.isItem(cnum, new CourseSearch());
+        if(_courses.FindItem(cnum, new CourseSearch()) == -1)
+            return false;
+        else
+            return true;
     }
     public int findCourse(String cnum){
         return _courses.FindItem(cnum, new CourseSearch());
@@ -154,6 +166,77 @@ class AllCourses{
             _courses.getItem(i).setNumber(ncnum);
             return true;
     }
+}
+class Enrollment{
+    private HashMap<String, AllItems<String>> _enroll;
+    public Enrollment(){_enroll = new HashMap<String, AllItems<String>>();}
+    public void addCourseToStudent(String id, String c){
+        AllItems<String> t = _enroll.get(id);
+        if (t == null)  // student not in enroll
+            t = new AllItems<String>();
+        t.addItem(c);
+        _enroll.put(id, t);
+    }
+    public void dropStudentFromAllCourses(String id){
+        if (_enroll.containsKey(id))
+            _enroll.remove(id);
+    }
+    public boolean dropStudentFromCourse(String id, String cnum){
+        // Drops a student from a course
+        // If student has no more courses then remove student from hashmap
+        AllItems<String> t = _enroll.get(id);
+        int i = t.FindItem(cnum, new CnumSearch() );
+        if (i == -1)
+            return false;
+        t.removeItem(i);
+        if (t.size() == 0)
+            _enroll.remove(id);
+        return true;
+    }
+    public boolean dropCourseFromAllStudents(String cnum){
+        // Drops course from all students that are enrolled in the course
+        // If student has no more courses then remove student from hashmap
+        // Students that need to be removed will be stored in a temporary arraylist
+        // in order to remove them from hashmap after iterating
+        boolean found = false;
+        // list of student ids to remove from hashmap
+        ArrayList<String> kt = new ArrayList<String>();
+        // extract keys from hashmap to iterator through
+        Set keys = _enroll.keySet();
+        Iterator itr = keys.iterator();
+        while (itr.hasNext()) {
+            found = false;
+            String k = (String)itr.next();
+            AllItems<String> t = _enroll.get(k);
+            int i = t.FindItem(cnum, new CnumSearch());
+            if (i != -1) {
+                t.removeItem(i);
+                if (t.size() == 0)
+                    kt.add(k);
+                found = true;
+            }
+        }
+        for (int i=0; i<kt.size(); i++)
+            _enroll.remove(kt.get(i));
+
+        return found;
+    }
+    public String toString(){
+        String s = "Enrollment:\n";
+        Set keys = _enroll.keySet();
+        Iterator itr = keys.iterator();
+        while (itr.hasNext()) {
+            String k = (String)itr.next();
+            AllItems<String> t = _enroll.get(k);
+            s += (k + " ");
+            for (int j=0; j<t.size(); j++)
+                s += (t.getItem(j) + " ");
+            s += "\n";
+        }
+
+        return s;
+    }
+
 }
 public class Main {
     public static void main(String[] args) {
